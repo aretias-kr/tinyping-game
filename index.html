@@ -1,8 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>티니핑 이름 맞추기</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,58 +11,9 @@
       href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Nanum+Gothic:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="page">
-      <header class="hero">
-        <div class="hero-text">
-          <p class="eyebrow">TinyPing Guess</p>
-          <h1>티니핑 이름 맞추기</h1>
-          <p class="sub">
-            클릭할 때마다 가려진 영역이 조금씩 열려요. 몇 번 만에 맞히는지
-            기록해보세요.
-          </p>
-        </div>
-        <div class="hero-panel">
-          <div class="stats">
-            <div>
-              <span class="label">클릭 수</span>
-              <span id="clickCount" class="value">0</span>
-            </div>
-            <div>
-              <span class="label">현재 문제</span>
-              <span id="roundIndex" class="value">1 / 100</span>
-            </div>
-          </div>
-          <div class="controls">
-            <select id="seasonSelect">
-              <option value="all">전체 시즌</option>
-            </select>
-            <input
-              id="guessInput"
-              type="text"
-              placeholder="이름을 입력해 주세요"
-              autocomplete="off"
-            />
-            <button id="submitBtn">정답 제출</button>
-            <button id="skipBtn" class="ghost">SKIP</button>
-          </div>
-          <p id="feedback" class="feedback">시작하려면 이미지를 클릭하세요.</p>
-          <p id="summary" class="summary"></p>
-        </div>
-      </header>
-
-      <section class="board">
-        <div class="canvas-wrap">
-          <canvas id="imageCanvas" width="720" height="720"></canvas>
-          <canvas id="maskCanvas" width="720" height="720"></canvas>
-          <div class="canvas-hint">클릭해서 영역을 열어보세요</div>
-        </div>
-      </section>
-    </main>
-
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script src="script.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
