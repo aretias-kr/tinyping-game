@@ -38,11 +38,6 @@
             <select id="seasonSelect">
               <option value="all">전체 시즌</option>
             </select>
-            <div class="dim-control">
-              <label for="dimControl">Mask</label>
-              <input id="dimControl" type="range" min="0" max="100" value="100" />
-              <span id="dimValue">100%</span>
-            </div>
             <input
               id="guessInput"
               type="text"
@@ -50,9 +45,10 @@
               autocomplete="off"
             />
             <button id="submitBtn">정답 제출</button>
-            <button id="skipBtn" class="ghost">다음 문제</button>
+            <button id="skipBtn" class="ghost">SKIP</button>
           </div>
           <p id="feedback" class="feedback">시작하려면 이미지를 클릭하세요.</p>
+          <p id="summary" class="summary"></p>
         </div>
       </header>
 
@@ -65,6 +61,7 @@
       </section>
     </main>
 
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="script.js"></script>
   </body>
 </html>

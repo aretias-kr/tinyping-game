@@ -10,8 +10,8 @@ const submitBtn = document.getElementById("submitBtn");
 const skipBtn = document.getElementById("skipBtn");
 const feedback = document.getElementById("feedback");
 const seasonSelect = document.getElementById("seasonSelect");
-const dimControl = document.getElementById("dimControl");
-const dimValue = document.getElementById("dimValue");
+const summary = document.getElementById("summary");
+const toast = document.getElementById("toast");
 
 const state = {
   mapping: [],
@@ -24,6 +24,9 @@ const state = {
   dimAlpha: 1,
   maskBase: null,
   maskBaseCtx: null,
+  roundWrongs: 0,
+  recentStats: [],
+  toastTimer: null,
 };
 
 function shuffle(list) {
@@ -137,6 +140,20 @@ function updateStats() {
   roundIndexEl.textContent = `${current} / ${total}`;
 }
 
+function showToast(message) {
+  if (!toast) {
+    return;
+  }
+  toast.textContent = message;
+  toast.classList.add("show");
+  if (state.toastTimer) {
+    clearTimeout(state.toastTimer);
+  }
+  state.toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 1400);
+}
+
 function loadCurrentImage() {
   if (!state.order.length) {
     resizeCanvases();
@@ -145,12 +162,14 @@ function loadCurrentImage() {
     feedback.textContent = "선택한 시즌에 문제가 없어요.";
     state.current = null;
     updateStats();
+    updateSummary();
     return;
   }
   const entry = state.mapping[state.order[state.currentIndex]];
   state.current = entry;
   state.clickCount = 0;
   state.revealed = false;
+  state.roundWrongs = 0;
   guessInput.value = "";
   updateStats();
   feedback.textContent = "이미지를 클릭해서 조금씩 확인해 보세요.";
@@ -200,13 +219,25 @@ submitBtn.addEventListener("click", () => {
   if (guess === answer) {
     state.revealed = true;
     revealAll();
-    feedback.textContent = `정답! ${displayName(state.current)} - 클릭 ${state.clickCount}회`;
+    recordRound({ skipped: false });
+    feedback.textContent = "정답입니다!";
+    showToast("정답입니다!");
+    setTimeout(() => {
+      nextRound();
+    }, 400);
   } else {
+    state.roundWrongs += 1;
     feedback.textContent = "아쉽지만 틀렸어요. 다시 도전!";
   }
 });
 
 skipBtn.addEventListener("click", () => {
+  if (!state.current) {
+    return;
+  }
+  state.revealed = true;
+  revealAll();
+  recordRound({ skipped: true });
   nextRound();
 });
 
@@ -220,26 +251,28 @@ seasonSelect.addEventListener("change", () => {
   buildOrder();
 });
 
-function updateDimDisplay(value) {
-  if (!dimValue) {
-    return;
-  }
-  dimValue.textContent = `${value}%`;
+function recordRound({ skipped }) {
+  state.recentStats.push({
+    clicks: state.clickCount,
+    wrongs: state.roundWrongs,
+    skipped,
+  });
+  updateSummary();
 }
 
-if (dimControl) {
-  updateDimDisplay(dimControl.value);
-  dimControl.addEventListener("input", (event) => {
-    const nextValue = Number(event.target.value);
-    if (!Number.isFinite(nextValue)) {
-      return;
-    }
-    state.dimAlpha = Math.min(1, Math.max(0, nextValue / 100));
-    updateDimDisplay(nextValue);
-    if (state.current && !state.revealed) {
-      applyDimAlpha();
-    }
-  });
+function updateSummary() {
+  if (!summary) {
+    return;
+  }
+  if (state.recentStats.length < 10) {
+    summary.textContent = "";
+    return;
+  }
+  const recent = state.recentStats.slice(-10);
+  const totalClicks = recent.reduce((sum, item) => sum + item.clicks, 0);
+  const totalWrongs = recent.reduce((sum, item) => sum + item.wrongs, 0);
+  const totalSkips = recent.reduce((sum, item) => sum + (item.skipped ? 1 : 0), 0);
+  summary.textContent = `최근 10문제: 클릭 ${totalClicks}회, 오답 ${totalWrongs}회, SKIP ${totalSkips}회`;
 }
 
 window.addEventListener("resize", () => {
@@ -304,5 +337,8 @@ function buildOrder() {
   }
   state.order = shuffle(pool);
   state.currentIndex = 0;
+  state.recentStats = [];
+  state.roundWrongs = 0;
+  updateSummary();
   loadCurrentImage();
 }
