@@ -287,12 +287,6 @@ export default function SudokuGame() {
   const handleHint = useCallback(() => {
     if (!board || !sizeConfig) return;
 
-    // 9x9에서는 힌트 제공 안 함
-    if (sizeConfig.size === 9) {
-      showToast("9x9 스도쿠에서는 힌트를 제공하지 않습니다.");
-      return;
-    }
-
     const hint = findHint(board, sizeConfig);
 
     if (!hint) {
@@ -300,40 +294,18 @@ export default function SudokuGame() {
       return;
     }
 
-    const { row, col, value, reason } = hint;
-
-    // 보드 업데이트
-    const newBoard = board.map((r) => [...r]);
-    const oldValue = newBoard[row][col];
-
-    // 이전 값 제거
-    if (oldValue !== null) {
-      setImageUsage((prev) => ({
-        ...prev,
-        [oldValue]: Math.max(0, (prev[oldValue] || 0) - 1),
-      }));
-    }
-
-    // 힌트 값 설정
-    newBoard[row][col] = value;
-    setBoard(newBoard);
-
-    // 이미지 사용 횟수 업데이트
-    setImageUsage((prev) => ({
-      ...prev,
-      [value]: (prev[value] || 0) + 1,
-    }));
+    const { row, col, reason } = hint;
 
     // 힌트 카운트 증가
     setHintCount((prev) => prev + 1);
 
-    // 힌트 셀 하이라이트
+    // 힌트 셀 하이라이트 (어느 칸을 봐야 하는지 안내)
     setHintCell({ row, col });
     setTimeout(() => {
       setHintCell(null);
     }, 3000); // 3초 후 하이라이트 제거
 
-    // 힌트 설명 표시
+    // 힌트 설명 표시 (규칙 기반 메시지만 제공, 값은 직접 찾도록 유도)
     showToast(`힌트: (${row + 1}행, ${col + 1}열) - ${reason}`, 4000);
   }, [board, sizeConfig, showToast]);
 
@@ -397,16 +369,14 @@ export default function SudokuGame() {
                 <button type="button" className="ghost" onClick={handleReset}>
                   리셋
                 </button>
-                {sizeConfig.size !== 9 && (
-                  <button type="button" className="ghost hint-button" onClick={handleHint}>
-                    힌트
-                  </button>
-                )}
+                <button type="button" className="ghost hint-button" onClick={handleHint}>
+                  힌트
+                </button>
                 <button type="button" className="ghost" onClick={() => setShowRules(true)}>
                   규칙 보기
                 </button>
               </div>
-              {sizeConfig.size !== 9 && hintCount > 0 && (
+              {hintCount > 0 && (
                 <div className="hint-counter">
                   힌트 사용: {hintCount}회
                 </div>
@@ -535,6 +505,8 @@ export default function SudokuGame() {
                   <li>이미지가 {imageCount}번 사용되면 더 이상 사용할 수 없습니다 (딤드 처리).</li>
                   <li>셀을 더블클릭하면 입력한 값을 지울 수 있습니다.</li>
                   <li>잘못된 입력은 빨간색으로 표시됩니다.</li>
+                  <li>힌트 버튼은 자동으로 답을 채워 주지 않고, 어떤 칸을 어떤 규칙으로 보면 되는지를 설명만 제공합니다.</li>
+                  <li>힌트 설명을 읽고 스스로 이미지를 선택해 넣어 보세요. 힌트는 4x4, 6x6, 9x9 모든 크기에서 사용할 수 있습니다.</li>
                   <li>모든 셀을 올바르게 채우면 게임이 완료됩니다!</li>
                 </ul>
               </div>
