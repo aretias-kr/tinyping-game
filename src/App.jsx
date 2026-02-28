@@ -1,29 +1,32 @@
-﻿import { useState } from "react";
+﻿import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import NameGame from "./NameGame.jsx";
 import SudokuGame from "./SudokuGame.jsx";
+import PuzzleGame from "./PuzzleGame.jsx";
 
 export default function App() {
-  const [currentGame, setCurrentGame] = useState("name"); // "name" or "sudoku"
-
   return (
     <>
       <div className="game-menu">
-        <button
-          type="button"
-          className={currentGame === "name" ? "active" : ""}
-          onClick={() => setCurrentGame("name")}
+        <NavLink to="/name" className={({ isActive }) => (isActive ? "active" : "")}
         >
           이름 맞추기
-        </button>
-        <button
-          type="button"
-          className={currentGame === "sudoku" ? "active" : ""}
-          onClick={() => setCurrentGame("sudoku")}
+        </NavLink>
+        <NavLink to="/sudoku" className={({ isActive }) => (isActive ? "active" : "")}
         >
           스도쿠
-        </button>
+        </NavLink>
+        <NavLink to="/puzzle" className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          퍼즐 맞추기
+        </NavLink>
       </div>
-      {currentGame === "name" ? <NameGame /> : <SudokuGame />}
+      <Routes>
+        <Route path="/" element={<Navigate to="/name" replace />} />
+        <Route path="/name" element={<NameGame />} />
+        <Route path="/sudoku" element={<SudokuGame />} />
+        <Route path="/puzzle" element={<PuzzleGame />} />
+        <Route path="*" element={<Navigate to="/name" replace />} />
+      </Routes>
     </>
   );
 }
